@@ -28,6 +28,9 @@ go.work.sum
 # env file
 .env
 
+# AWS IAM policy files (contain account ID and resource ARNs)
+helm/tickasis-secrets-policy.json
+
 # Local frontend build artifact
 /frontend/frontend
 
