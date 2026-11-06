@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tickasis TO-DO — Create Account</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      color: #e2e8f0;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .brand-icon { font-size: 2.8rem; }
+    .brand h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-top: 6px;
+    }
+    .brand p {
+      color: #94a3b8;
+      font-size: 0.88rem;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 420px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+    }
+
+    .card h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 6px;
+    }
+    .card .subtitle {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 28px;
+    }
+
+    .field { margin-bottom: 18px; }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.07);
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input::placeholder { color: #475569; }
+    input:focus {
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 3px rgba(167,139,250,0.18);
+    }
+
+    .error {
+      background: rgba(248,113,113,0.12);
+      border: 1px solid rgba(248,113,113,0.3);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fca5a5;
+      font-size: 0.88rem;
+      margin-bottom: 20px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 6px;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+      color: #334155;
+      font-size: 0.82rem;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .switch-link {
+      text-align: center;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .switch-link a {
+      color: #a78bfa;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .switch-link a:hover { text-decoration: underline; }
+
+    footer {
+      margin-top: 28px;
+      font-size: 0.75rem;
+      color: #334155;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="brand">
+    <div class="brand-icon">✦</div>
+    <h1>Tickasis TO-DO</h1>
+    <p>Your personal productivity space</p>
+  </div>
+
+  <div class="card">
+    <h2>Create your account</h2>
+    <p class="subtitle">Start organizing your life in seconds.</p>
+
+    {{if .Error}}
+    <div class="error">⚠ {{.Error}}</div>
+    {{end}}
+
+    <form action="/signup" method="POST" autocomplete="off">
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" name="name" placeholder="Amit Rana" required autofocus />
+      </div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" name="email" placeholder="amit@example.com" required />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Min. 8 characters" required />
+      </div>
+      <div class="field">
+        <label>Confirm Password</label>
+        <input type="password" name="confirm" placeholder="Repeat password" required />
+      </div>
+      <button type="submit" class="btn-primary">Create Account →</button>
+    </form>
+
+    <div class="divider">or</div>
+
+    <p class="switch-link">Already have an account? <a href="/signin">Sign in</a></p>
+  </div>
+
+  <footer>Tickasis TO-DO &copy; 2026 — Your tasks, your space.</footer>
+
+</body>
+</html>

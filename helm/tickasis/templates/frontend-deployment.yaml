@@ -1,0 +1,48 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-frontend
+  labels:
+    app: {{ .Release.Name }}-frontend
+  namespace: {{ .Release.Namespace }}
+
+spec:
+  replicas: {{ .Values.global.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-frontend
+
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-frontend
+
+    spec:
+      imagePullSecrets:
+        - name: ecr-registry-secret
+
+      containers:
+        - name: {{ .Release.Name }}-frontend
+          image: "{{ .Values.image.frontend.repository }}:{{ .Values.image.frontend.tag }}"
+          imagePullPolicy: {{ .Values.image.frontend.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: tickasis-app-secrets
+            - configMapRef:
+                name: {{ .Release.Name }}-auth-configmap
+          ports:
+            - containerPort: {{ .Values.service.frontend.containerPort }}
+
+          resources:
+            requests:
+              memory: {{ .Values.global.resources.requests.memory }}
+              cpu: {{ .Values.global.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.global.resources.limits.memory }}
+              cpu: {{ .Values.global.resources.limits.cpu }}
+
+          volumes:
+            - name: {{ .Release.Name }}-frontend-storage
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-frontend-pvc

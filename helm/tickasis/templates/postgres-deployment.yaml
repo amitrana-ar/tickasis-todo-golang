@@ -1,0 +1,46 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-postgres
+  labels:
+    app: {{ .Release.Name }}-postgres
+  namespace: {{ .Release.Namespace }}
+
+spec:
+  replicas: {{ .Values.global.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-postgres
+
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-postgres
+
+    spec:
+      imagePullSecrets:
+        - name: ecr-registry-secret
+
+      containers:
+        - name: {{ .Release.Name }}-postgres
+          image: "{{ .Values.image.postgres.repository }}:{{ .Values.image.postgres.tag }}"
+          imagePullPolicy: {{ .Values.image.postgres.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: tickasis-app-secrets
+          ports:
+            - containerPort: {{ .Values.service.postgres.containerPort }}
+
+          resources:
+            requests:
+              memory: {{ .Values.global.resources.requests.memory }}
+              cpu: {{ .Values.global.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.global.resources.limits.memory }}
+              cpu: {{ .Values.global.resources.limits.cpu }}
+
+          volumes:
+            - name: {{ .Release.Name }}-postgres-storage
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-postgres-pvc

@@ -1,0 +1,94 @@
+services:
+
+  # ── PostgreSQL ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: tasksis-db
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB}
+      POSTGRES_USER:     ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Auth Service (port 8081) ───────────────────────────────────────────────
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: tasksis-auth
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    env_file: .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      PORT: "8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ── Todo Service (port 8082) ───────────────────────────────────────────────
+  todo-service:
+    build:
+      context: ./todo-service
+      dockerfile: Dockerfile
+    container_name: tasksis-todo
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    env_file: .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      PORT: "8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ── Frontend (port 8080) — the only public-facing service ──────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tasksis-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      AUTH_SERVICE_URL: "http://auth-service:8081"
+      TODO_SERVICE_URL: "http://todo-service:8082"
+      PORT: "8080"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      todo-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+# ── Named volumes ──────────────────────────────────────────────────────────────
+volumes:
+  postgres-data:

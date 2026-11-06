@@ -1,0 +1,46 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-app
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}-app
+
+spec:
+  replicas: {{ .Values.global.replicaCount }}
+
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-app
+
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-app
+
+    spec:
+      imagePullSecrets:
+        - name: ecr-registry-secret
+
+      containers:
+        - name: app
+          image: "{{ .Values.image.app.repository }}:{{ .Values.image.app.tag }}"
+          imagePullPolicy: {{ .Values.image.app.pullPolicy }}
+
+          ports:
+            - containerPort: {{ .Values.service.app.containerPort }}
+          envFrom:
+            - secretRef:
+                name: tickasis-app-secrets
+          resources:
+            requests:
+              memory: {{ .Values.global.resources.requests.memory }}
+              cpu: {{ .Values.global.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.global.resources.limits.memory }}
+              cpu: {{ .Values.global.resources.limits.cpu }}
+          volumes:
+            - name: {{ .Release.Name }}-app-storage
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-app-pvc

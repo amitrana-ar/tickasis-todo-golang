@@ -1,0 +1,10 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-auth-configmap
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}-configmap
+data:
+  AUTH_SERVICE_URL: {{ .Values.configmap.auth.value }}
+  TODO_SERVICE_URL: {{ .Values.configmap.todo.value }}
